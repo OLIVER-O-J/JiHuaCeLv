@@ -14,6 +14,8 @@ namespace An_inspiration_strikes
             Console.WriteLine("欢迎使用 An_inspiration_strikes 应用程序！");
             Console.WriteLine("请按任意键退出...");
             Console.ReadKey();
+
+
         }
     }
 }
