@@ -839,7 +839,7 @@ namespace JiHuaCeLv
                 var motorlist = goalist.Where(i => i.name?.Contains("电机") == true).ToList();
                 foreach (var motor in motorlist)
                 {
-                    
+
                 }
 
                 var path = Path.GetFileName($"{name}.xlsx");
@@ -860,13 +860,51 @@ namespace JiHuaCeLv
             };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                string name = "7组件（已改）";
-                var goalist = MiniExcel.Query<Name>(ofd.FileName, sheetName: "物料#物料(FBillHead)", startCell: "A2").ToList();
+                string name = "电机（已改）";
+                var goalist = MiniExcel.Query<KRCU>(ofd.FileName, sheetName: "Sheet1", startCell: "A2").ToList();
                 var path = Path.GetFileName($"{name}.xlsx");
                 var dir = Path.GetDirectoryName(ofd.FileName);
                 path = Path.Combine(dir, path);
                 MiniExcel.SaveAs(path, goalist, overwriteFile: true);
                 wenzi.Text = "good!";
+            }
+        }
+
+        private void 对7的规格型号进行正则提取_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog()
+            {
+                Title = "打开文件",
+                Filter = "Excel文件(*.xlsx)|*.xlsx|全部文件(*.*)|*.*",
+                RestoreDirectory = true,
+            };
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var list = MiniExcel.Query<GetSpec>(openFileDialog.FileName, startCell: "A2").ToList();
+                var path = "7包材（规格）.xlsx";
+                var dir = Path.GetDirectoryName(openFileDialog.FileName);
+                path = Path.Combine(dir, path);
+                MiniExcel.SaveAs(path, list, overwriteFile: true);
+                wenzi.Text = "good!";
+            }
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd =new OpenFileDialog()
+            {
+                Title = "打开文件",
+                Filter = "Excel文件(*.xlsx)|*.xlsx|全部文件(*.*)|*.*",
+                RestoreDirectory = true,
+            };
+            if (ofd.ShowDialog()==DialogResult.OK)
+            {
+                var goalist =MiniExcel.Query<Name>(ofd.FileName, sheetName: "物料#物料(FBillHead)", startCell: "A2").ToList();
+                var path = Path.GetFileName("物料名称.xlsx");
+                var dir = Path.GetDirectoryName(ofd.FileName);
+                path = Path.Combine(dir, path);
+                MiniExcel.SaveAs(path, goalist, overwriteFile:true);
+                wenzi.Text = "good!已提取物料名称";
             }
         }
     }

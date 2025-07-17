@@ -85,154 +85,102 @@ namespace regulartest
 
 
 
-
-
-
-        public static (string OriginalString, string ExtractedPart, string ModifiedString) ProcessKRCUString(string input)
+        public static (string extractedPart, string remainingString) ExtractKrcu(string input)
         {
             if (string.IsNullOrEmpty(input))
+                return ("", "");
+
+            // 分割字符串并移除空项
+            var parts = input.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                             .Select(p => p.Trim())
+                             .ToList();
+
+            // 查找第一个以"KRCU"开头的部分
+            var krcuPart = parts.FirstOrDefault(p => p.StartsWith("KRCU", StringComparison.Ordinal));
+
+            if (krcuPart != null)
             {
-                return (input, string.Empty, input);
+                // 移除找到的KRCU部分
+                parts.Remove(krcuPart);
             }
 
-            // 使用正则表达式按逗号分割字符串，同时处理中英文逗号
-            var parts = Regex.Split(input, @"[，,]").Select(p => p.Trim()).ToList();
-
-            // 查找以KRCU开头的部分
-            var krcuIndex = parts.FindIndex(p => p.StartsWith("KRCU"));
-            string krcuPart = krcuIndex >= 0 ? parts[krcuIndex] : string.Empty;
-
-            // 提取KRCU部分中的括号内容并从KRCU部分删除
-            string extractedBracketContent = string.Empty;
-            string processedKrcuPart = krcuPart;
-            if (!string.IsNullOrEmpty(krcuPart))
-            {
-                // 提取括号及其中的内容
-                var bracketMatch = Regex.Match(krcuPart, @"\([^)]*\)");
-                if (bracketMatch.Success)
-                {
-                    extractedBracketContent = bracketMatch.Value;
-                    processedKrcuPart = krcuPart.Replace(extractedBracketContent, "").Trim();
-                }
-            }
-
-            // 从原字符串中删除KRCU部分（处理后的）
-            string modifiedString = input;
-            if (krcuIndex >= 0)
-            {
-                // 找到原始字符串中KRCU部分的起始和结束位置
-                int startIndex = 0;
-                int currentPartIndex = 0;
-                int krcuStart = 0;
-                int krcuEnd = 0;
-
-                foreach (var part in Regex.Split(input, @"[，,]"))
-                {
-                    if (currentPartIndex == krcuIndex)
-                    {
-                        krcuStart = startIndex;
-                        krcuEnd = startIndex + part.Length;
-                        break;
-                    }
-                    startIndex += part.Length + 1; // +1 是逗号的长度
-                    currentPartIndex++;
-                }
-
-                // 删除KRCU部分，包括可能的前导或尾随逗号
-                if (krcuStart > 0 && input[krcuStart - 1] == ',')
-                {
-                    krcuStart--; // 包含前导逗号
-                }
-                else if (krcuEnd < input.Length && input[krcuEnd] == ',')
-                {
-                    krcuEnd++; // 包含尾随逗号
-                }
-
-                modifiedString = input.Remove(krcuStart, krcuEnd - krcuStart);
-
-                // 处理可能出现的连续逗号
-                modifiedString = Regex.Replace(modifiedString, @",+", ",");
-                modifiedString = modifiedString.Trim(',');
-            }
-
-            // 将提取的括号内容插入到KRCU原来的位置
-            if (!string.IsNullOrEmpty(extractedBracketContent) && krcuIndex >= 0)
-            {
-                // 计算插入位置（考虑删除操作后的偏移）
-                int insertIndex = CalculateInsertIndex(input, krcuIndex);
-
-                // 如果原字符串不是空的，确保插入位置正确
-                if (insertIndex >= 0 && insertIndex <= modifiedString.Length)
-                {
-                    // 如果插入位置在字符串中间，确保前面有逗号
-                    if (insertIndex > 0 && insertIndex < modifiedString.Length && modifiedString[insertIndex - 1] != ',')
-                    {
-                        modifiedString = modifiedString.Insert(insertIndex, "," + extractedBracketContent);
-                    }
-                    else
-                    {
-                        modifiedString = modifiedString.Insert(insertIndex, extractedBracketContent);
-                    }
-
-                    // 如果插入位置不在字符串末尾，确保后面有逗号
-                    if (insertIndex < modifiedString.Length - 1 && modifiedString[insertIndex + extractedBracketContent.Length] != ',')
-                    {
-                        modifiedString = modifiedString.Insert(insertIndex + extractedBracketContent.Length, ",");
-                    }
-                }
-            }
-
-            return (input, processedKrcuPart, modifiedString);
+            // 重新组合剩余部分
+            var remaining = string.Join(",", parts);
+            return (krcuPart ?? "", remaining);
         }
 
-        private static int CalculateInsertIndex(string originalInput, int krcuIndex)
+
+        /// <summary>
+        /// 在名称里面处理KRCU部分，将括号内的内容提取出来并与括号前的内容用逗号连接
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static (string extractedPart, string formattedString) ExtractAndFormatKrcu(string input)
         {
-            int insertIndex = 0;
-            int currentPartIndex = 0;
+            if (string.IsNullOrWhiteSpace(input))
+                return ("", "");
 
-            foreach (var part in Regex.Split(originalInput, @"[，,]"))
-            {
-                if (currentPartIndex == krcuIndex)
-                {
-                    break;
-                }
-                insertIndex += part.Length + 1; // +1 是逗号的长度
-                currentPartIndex++;
-            }
+            // 使用正则表达式匹配KRCU部分
+            var match = Regex.Match(input, @"KRCU[\w\-\.]+[^)\s]*");
 
-            // 调整插入位置，考虑删除KRCU部分后的偏移
-            return Math.Max(0, insertIndex);
+            if (!match.Success)
+                return ("", input.Trim());
+
+            string krcuPart = match.Value;
+
+            // 从原字符串中移除KRCU部分及其周围的括号
+            string formatted = Regex.Replace(input, @"\s*\(\s*" + Regex.Escape(krcuPart) + @"\s*\)\s*", " ")
+                          .Replace(krcuPart, " ")
+                          .Replace("  ", " ") // 替换双空格为单空格
+                          .Trim();
+
+            // 返回提取的KRCU部分和格式化后的字符串
+            return (krcuPart, $"{krcuPart},{formatted}");
         }
-
-
 
 
 
 
         /// <summary>
-        /// 解析类似 "KB034 内置电机KRCU20E-2BT" 格式的字符串，返回元组 (code, description, model)
+        ///在规格型号里面处理KRCU部分，将括号内的内容提取出来并与括号前的内容用逗号连接
         /// </summary>
-        /// <param name="input">待解析字符串</param>
-        /// <returns>包含Code、Description、Model的元组，否则返回null</returns>
-        public static (string Code, string Description, string Model)? ParseCodeDescriptionModel(string input)
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string ProcessString(string input)
         {
-            string pattern = @"^(?<code>[A-Za-z]+\d*)\s*(?<description>.+?)\s*(?<model>[A-Za-z0-9\-]+)$";
+            if (string.IsNullOrEmpty(input))
+                return input;
 
-            var regex = new Regex(pattern);
-            var match = regex.Match(input);
+            // 查找第一个左括号的位置
+            int leftIndex = input.IndexOf('(');
+            if (leftIndex == -1)
+                return input; // 没有左括号直接返回
 
-            if (match.Success)
-            {
-                return (
-                    match.Groups["code"].Value,
-                    match.Groups["description"].Value,
-                    match.Groups["model"].Value
-                );
-            }
-            else
-            {
-                return null; // 无法匹配
-            }
+            // 在左括号后查找右括号
+            int rightIndex = input.IndexOf(')', leftIndex + 1);
+            if (rightIndex == -1)
+                return input; // 没有匹配的右括号
+
+            // 提取括号前部分
+            string before = input.Substring(0, leftIndex);
+
+            // 提取括号内容（去掉括号）
+            string inside = input.Substring(leftIndex + 1, rightIndex - leftIndex - 1);
+
+            // 用逗号连接两部分
+            return before + "," + inside;
+        }
+
+
+
+
+        public static string GetFirstPart(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            string[] parts = input.Split(',');
+            return parts[0].Trim(); // 去除首尾空格（可选）
         }
     }
 }

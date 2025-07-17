@@ -51,6 +51,8 @@
             this.提取图号 = new System.Windows.Forms.Button();
             this.对中类物料的名称进行提取 = new System.Windows.Forms.Button();
             this.对7组件物料修改名称 = new System.Windows.Forms.Button();
+            this.对7的规格型号进行正则提取 = new System.Windows.Forms.Button();
+            this.button9 = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -294,14 +296,39 @@
             this.对7组件物料修改名称.Name = "对7组件物料修改名称";
             this.对7组件物料修改名称.Size = new System.Drawing.Size(94, 37);
             this.对7组件物料修改名称.TabIndex = 20;
+            this.对7组件物料修改名称.Text = "对名称有电机进行处理";
             this.对7组件物料修改名称.UseVisualStyleBackColor = true;
             this.对7组件物料修改名称.Click += new System.EventHandler(this.对7组件物料修改名称_Click);
+            // 
+            // 对7的规格型号进行正则提取
+            // 
+            this.对7的规格型号进行正则提取.Location = new System.Drawing.Point(694, 18);
+            this.对7的规格型号进行正则提取.Margin = new System.Windows.Forms.Padding(2);
+            this.对7的规格型号进行正则提取.Name = "对7的规格型号进行正则提取";
+            this.对7的规格型号进行正则提取.Size = new System.Drawing.Size(94, 37);
+            this.对7的规格型号进行正则提取.TabIndex = 21;
+            this.对7的规格型号进行正则提取.Text = "对7的规格进行正则提取";
+            this.对7的规格型号进行正则提取.UseVisualStyleBackColor = true;
+            this.对7的规格型号进行正则提取.Click += new System.EventHandler(this.对7的规格型号进行正则提取_Click);
+            // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(694, 102);
+            this.button9.Margin = new System.Windows.Forms.Padding(2);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(94, 37);
+            this.button9.TabIndex = 22;
+            this.button9.Text = "对名称进行分割型号+名称";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(995, 555);
+            this.Controls.Add(this.button9);
+            this.Controls.Add(this.对7的规格型号进行正则提取);
             this.Controls.Add(this.对7组件物料修改名称);
             this.Controls.Add(this.对中类物料的名称进行提取);
             this.Controls.Add(this.提取图号);
@@ -359,6 +386,8 @@
         private System.Windows.Forms.Button 提取图号;
         private System.Windows.Forms.Button 对中类物料的名称进行提取;
         private System.Windows.Forms.Button 对7组件物料修改名称;
+        private System.Windows.Forms.Button 对7的规格型号进行正则提取;
+        private System.Windows.Forms.Button button9;
     }
 }
 

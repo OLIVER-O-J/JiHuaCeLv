@@ -202,6 +202,7 @@
     <Compile Include="BOM\BOM_YinruMold.cs" />
     <Compile Include="BOM\Old_BOM.cs" />
     <Compile Include="Model\GetSpec.cs" />
+    <Compile Include="Model\KRCU.cs" />
     <Compile Include="Model\List_Model.cs" />
     <Compile Include="Model\Name.cs" />
     <Compile Include="Model\RegularExpression.cs" />
